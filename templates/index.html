@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HTTP Requests Tutorial</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        code {
+            background-color: #eee;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTTP Requests Tutorial</h1>
+
+    <h3>data = {{ data | tojson | safe }}</h3>
+
+    <h2>GET Request</h2>
+    <p>To retrieve all the data, you can use a GET request. In your browser, navigate to <code>http://localhost:5000/resource</code>.</p>
+    <p>Or, you can use the following curl command:</p>
+    <code>curl -X GET http://localhost:5000/resource</code>
+
+    <h2>POST Request</h2>
+    <p>To add new data, you can use a POST request. You can use the following curl command:</p>
+    <code>curl -X POST -H "Content-Type: application/json" -d '{"key":"value"}' http://localhost:5000/resource</code>
+
+    <h2>PUT Request</h2>
+    <p>To update existing data, you can use a PUT request. You can use the following curl command:</p>
+    <code>curl -X PUT -H "Content-Type: application/json" -d '{"existing_key":"new_value"}' http://localhost:5000/resource</code>
+
+    <h2>DELETE Request</h2>
+    <p>To delete existing data, you can use a DELETE request. You can use the following curl command:</p>
+    <code>curl -X DELETE -H "Content-Type: application/json" -d '{"key_to_delete":""}' http://localhost:5000/resource</code>
+    
+    <h2>Upload File</h2>
+    
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Upload</button>
+    </form>
+    <p>You can use the following curl command to upload a file:</p>
+    <code>curl -X POST -F "file=@/path/to/file" http://localhost:5000/upload</code>
+
+    <h2>File List</h2>
+    <ul>
+        {% for file in files %}
+            <li>{{ file }}</li>
+            <form action="/download/{{ file }}" method="get" style="display: inline;">
+                <button type="submit">Download</button>
+            </form>
+        {% endfor %}
+    </ul>
+
+    <p>You can use the following curl command to download a file:</p>
+    <code>curl -X GET http://localhost:5000/download/filename -o filename</code>
+</body>
+</html>
