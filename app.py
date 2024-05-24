@@ -1,12 +1,14 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory,make_response
 import os
-
+from ftplib import FTP
 app = Flask(__name__)
 
 # In-memory data structure to simulate a database
 data = {}
 
 UPLOAD_FOLDER = 'uploads'
+
+
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -33,11 +35,29 @@ def index():
     files = os.listdir(UPLOAD_FOLDER)
     return render_template('index.html',data=data, files=files)
 
-@app.route('/resource', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/resource', methods=['GET', 'POST', 'PUT', 'DELETE','PATCH','OPTIONS','HEAD'])
 def resource():
+    
     if request.method == 'GET':
         return jsonify(data)
-
+    
+    elif request.method == 'HEAD':
+        response = make_response('', 204)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    
+    elif request.method == 'PATCH':
+        patch_data = request.get_json()
+        for key, value in patch_data.items():
+            if key in data:
+                data[key] = value
+        return jsonify(patch_data)
+    
+    elif request.method == 'OPTIONS':
+        response = make_response('', 204)
+        response.headers['Allow'] = 'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD'
+        return response
+    
     elif request.method == 'POST':
         new_data = request.get_json()
         data.update(new_data)

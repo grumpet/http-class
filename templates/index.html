@@ -7,33 +7,45 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
+            background-color: #000000;
+            color: #fff;
         }
         h1 {
-            background-color: #333;
+            background-color: #666;
             color: #fff;
             padding: 10px 0;
             text-align: center;
         }
         h2, h3 {
-            color: #333;
+            color: #fff;
         }
         code {
-            background-color: #eee;
+            background-color: #444;
             padding: 2px 4px;
             border-radius: 4px;
+            color: #fff;
         }
         pre {
-            background-color: #eee;
+            background-color: #444;
             padding: 10px;
             border-radius: 4px;
+            color: #fff;
+        }
+        .data-box {
+            border: 1px solid #fff;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 20px;
+            background-color: #444;
+            color: #fff;
         }
     </style>
 </head>
 <body>
-    <h1>HTTP Requests Tutorial</h1>
-
-    <h3>data = {{ data | tojson | safe }}</h3>
+    <h1><b>HTTP Requests Tutorial</b></h1>
+    <div class="data-box">
+    <h2><b>data = {{ data | tojson | safe }}</b></h2>
+    </div>
 
     <h2>GET Request</h2>
     <p>To retrieve all the data, you can use a GET request. In your browser, navigate to <code>http://localhost:5000/resource</code>.</p>
@@ -51,7 +63,9 @@
     <h2>DELETE Request</h2>
     <p>To delete existing data, you can use a DELETE request. You can use the following curl command:</p>
     <code>curl -X DELETE -H "Content-Type: application/json" -d '{"key_to_delete":""}' http://localhost:5000/resource</code>
-    
+    <br>
+    <br>
+    <hr>
     <h2>Upload File</h2>
     
     <form action="/upload" method="post" enctype="multipart/form-data">
@@ -70,8 +84,73 @@
             </form>
         {% endfor %}
     </ul>
-
     <p>You can use the following curl command to download a file:</p>
     <code>curl -X GET http://localhost:5000/download/filename -o filename</code>
+    <br>
+    <br>
+
+    <hr>
+    <br>
+    <button onclick="makeHeadRequest()">HEAD</button>
+    <br>
+    <code>curl -I -X HEAD http://localhost:5000/resource</code>
+    <div id="headResponse" class="data-box">this only works with the curl command</div>
+    <br>
+    <button onclick="makePatchRequest()">PATCH</button>
+    <br>
+    <code>curl -X PATCH -H "Content-Type: application/json" -d '{"key":"new value"}' http://localhost:5000/resource</code>
+    <div id="patchResponse" class="data-box"></div>
+    <br>
+    <button onclick="makeOptionsRequest()">OPTIONS</button>
+    <br>
+    <pre>curl -I -X OPTIONS http://localhost:5000/resource</pre>
+    <div id="optionsResponse" class="data-box"></div>
+    
+    <script>
+        function makeHeadRequest() {
+            makeRequest('HEAD', 'headResponse');
+        }
+    
+        function makePatchRequest() {
+            makeRequest('PATCH', 'patchResponse');
+        }
+    
+        function makeOptionsRequest() {
+            makeRequest('OPTIONS', 'optionsResponse');
+        }
+        function makeRequest(method, responseElementId) {
+            fetch('/resource', {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: method === 'PATCH' ? JSON.stringify({'key': 'new value'}) : null
+            })
+            .then(response => {
+                if (response.ok) {
+                    if (method === 'PATCH') {
+                        return response.json();
+                    } else if (method === 'OPTIONS') {
+                        return response.headers.get('Allow');
+                    } else {
+                        return response.text();
+                    }
+                } else {
+                    throw new Error('HTTP error ' + response.status);
+                }
+            })
+            .then(data => {
+                if (typeof data === 'object') {
+                    // Convert the object to a string
+                    data = JSON.stringify(data, null, 2);
+                }
+                document.getElementById(responseElementId).innerText = data;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById(responseElementId).innerText = 'Error: ' + error;
+            });
+        }
+    </script>
 </body>
 </html>
